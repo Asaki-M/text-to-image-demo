@@ -6,11 +6,11 @@ export interface TextToImageOptions {
   model?: string;
   prompt: string;
   extraParams?: Record<string, any>;
+  token?: string; // HF token override
 }
 
-const client = new InferenceClient(process.env.HF_TOKEN);
-
 export async function textToImageDataUrl(options: TextToImageOptions): Promise<{base64: string, mimeType: string}> {
+  const client = new InferenceClient(options.token ?? process.env.HF_TOKEN);
   const image: any = await client.textToImage({
     provider: "auto",
     model: options.model ?? "Qwen/Qwen-Image",
@@ -22,8 +22,8 @@ export async function textToImageDataUrl(options: TextToImageOptions): Promise<{
   return { base64:`data:${mime};base64,${base64}`, mimeType: mime };
 }
 
-
 export async function textToImageAndSave(options: TextToImageOptions & { outputDir?: string; filename?: string }): Promise<{ filePath: string; base64: string; mimeType: string }> {
+  const client = new InferenceClient(options.token ?? process.env.HF_TOKEN);
   const image: any = await client.textToImage({
     provider: "auto",
     model: options.model ?? "Qwen/Qwen-Image",
@@ -44,6 +44,7 @@ export interface SiliconFlowImageOptions {
   num_inference_steps?: number;
   guidance_scale?: number;
   extraParams?: Record<string, any>;
+  token?: string; // SiliconFlow token override
 }
 
 export interface SiliconFlowImageResult {
@@ -51,7 +52,7 @@ export interface SiliconFlowImageResult {
 }
 
 export async function siliconFlowTextToImageUrl(options: SiliconFlowImageOptions): Promise<SiliconFlowImageResult> {
-  const sfToken = process.env.SF_TOKEN;
+  const sfToken = options.token ?? process.env.SF_TOKEN;
   if (!sfToken) {
     throw new Error("SF_TOKEN is missing");
   }

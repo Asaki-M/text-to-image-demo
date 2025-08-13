@@ -62,7 +62,8 @@ pnpm dev  # build then start
 {
   "prompt": "Astronaut riding a horse",
   "model": "Qwen/Qwen-Image",
-  "extraParams": { "num_inference_steps": 8 }
+  "extraParams": { "num_inference_steps": 8 },
+  "token": "hf_********************************"
 }
 ```
 - Response body (success):
@@ -84,7 +85,7 @@ curl -s http://localhost:3000/api/hf/generate-image \
 
 #### POST /api/hf/generate-image-save
 - Description: Generates an image and saves it to disk, returning pure base64 (no prefix) and the file path.
-- Request body: same as `/api/hf/generate-image`.
+- Request body: same as `/api/hf/generate-image` (you can also pass a `token`).
 - Response body (success):
 ```json
 {
@@ -113,7 +114,8 @@ curl -s http://localhost:3000/api/hf/generate-image-save \
   "image_size": "1024x1024",
   "batch_size": 1,
   "num_inference_steps": 20,
-  "guidance_scale": 7.5
+  "guidance_scale": 7.5,
+  "token": "sk_********************************"
 }
 ```
 - Response body (success):
@@ -255,7 +257,8 @@ pnpm dev  # 先构建再启动
 {
   "prompt": "Astronaut riding a horse",
   "model": "Qwen/Qwen-Image",
-  "extraParams": { "num_inference_steps": 8 }
+  "extraParams": { "num_inference_steps": 8 },
+  "token": "hf_********************************"
 }
 ```
 - 成功响应：
@@ -306,7 +309,8 @@ curl -s http://localhost:3000/api/hf/generate-image-save \
   "image_size": "1024x1024",
   "batch_size": 1,
   "num_inference_steps": 20,
-  "guidance_scale": 7.5
+  "guidance_scale": 7.5,
+  "token": "sk_********************************"
 }
 ```
 - 成功响应：

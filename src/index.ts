@@ -6,6 +6,7 @@ interface GenerateImageRequestBody {
 	prompt: string;
 	model?: string;
 	extraParams?: Record<string, any>;
+	token?: string; // optional HF token override
 }
 
 interface GenerateImageResponseBody {
@@ -23,6 +24,7 @@ interface SiliconFlowGenerateRequestBody {
 	num_inference_steps?: number;
 	guidance_scale?: number;
 	extraParams?: Record<string, any>;
+	token?: string; // optional SiliconFlow token override
 }
 
 interface SiliconFlowGenerateResponseBody {
@@ -40,14 +42,12 @@ app.post<{}, GenerateImageResponseBody, GenerateImageRequestBody>(
 		req: Request<{}, GenerateImageResponseBody, GenerateImageRequestBody>,
 		res: Response<GenerateImageResponseBody>
 	) => {
-		const hfToken = process.env.HF_TOKEN;
-		if (!hfToken) {
-			return res.status(500).json({ ok: false, error: "HF_TOKEN is missing" });
-		}
-
 		const body = req.body as GenerateImageRequestBody;
 		if (typeof body?.prompt !== "string" || body.prompt.trim().length === 0) {
 			return res.status(400).json({ ok: false, error: "prompt is required" });
+		}
+		if (!body.token && !process.env.HF_TOKEN) {
+			return res.status(500).json({ ok: false, error: "HF_TOKEN is missing" });
 		}
 
 		try {
@@ -55,6 +55,7 @@ app.post<{}, GenerateImageResponseBody, GenerateImageRequestBody>(
 				prompt: body.prompt,
 				model: body.model,
 				extraParams: body.extraParams,
+				token: body.token,
 			});
 			return res.status(200).json({ ok: true, base64 });
 		} catch (err: any) {
@@ -70,14 +71,12 @@ app.post<{}, GenerateImageResponseBody, GenerateImageRequestBody>(
 		req: Request<{}, GenerateImageResponseBody, GenerateImageRequestBody>,
 		res: Response<GenerateImageResponseBody>
 	) => {
-		const hfToken = process.env.HF_TOKEN;
-		if (!hfToken) {
-			return res.status(500).json({ ok: false, error: "HF_TOKEN is missing" });
-		}
-
 		const body = req.body as GenerateImageRequestBody;
 		if (typeof body?.prompt !== "string" || body.prompt.trim().length === 0) {
 			return res.status(400).json({ ok: false, error: "prompt is required" });
+		}
+		if (!body.token && !process.env.HF_TOKEN) {
+			return res.status(500).json({ ok: false, error: "HF_TOKEN is missing" });
 		}
 
 		try {
@@ -86,6 +85,7 @@ app.post<{}, GenerateImageResponseBody, GenerateImageRequestBody>(
 				model: body.model,
 				extraParams: body.extraParams,
 				outputDir: "outputs/image",
+				token: body.token,
 			});
 			return res.status(200).json({ ok: true, base64, filePath });
 		} catch (err: any) {
@@ -101,14 +101,12 @@ app.post<{}, SiliconFlowGenerateResponseBody, SiliconFlowGenerateRequestBody>(
 		req: Request<{}, SiliconFlowGenerateResponseBody, SiliconFlowGenerateRequestBody>,
 		res: Response<SiliconFlowGenerateResponseBody>
 	) => {
-		const sfToken = process.env.SF_TOKEN;
-		if (!sfToken) {
-			return res.status(500).json({ ok: false, error: "SF_TOKEN is missing" });
-		}
-
 		const body = req.body as SiliconFlowGenerateRequestBody;
 		if (typeof body?.prompt !== "string" || body.prompt.trim().length === 0) {
 			return res.status(400).json({ ok: false, error: "prompt is required" });
+		}
+		if (!body.token && !process.env.SF_TOKEN) {
+			return res.status(500).json({ ok: false, error: "SF_TOKEN is missing" });
 		}
 
 		try {
@@ -120,6 +118,7 @@ app.post<{}, SiliconFlowGenerateResponseBody, SiliconFlowGenerateRequestBody>(
 				num_inference_steps: body.num_inference_steps,
 				guidance_scale: body.guidance_scale,
 				extraParams: body.extraParams,
+				token: body.token,
 			});
 			return res.status(200).json({ ok: true, url });
 		} catch (err: any) {
