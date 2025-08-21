@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { InferenceClient } from "@huggingface/inference";
 import { toBase64, saveBase64Image } from "./util.js";
-const client = new InferenceClient(process.env.HF_TOKEN);
 export async function textToImageDataUrl(options) {
+    const client = new InferenceClient(options.token ?? process.env.HF_TOKEN);
     const image = await client.textToImage({
         provider: "auto",
         model: options.model ?? "Qwen/Qwen-Image",
@@ -14,6 +14,7 @@ export async function textToImageDataUrl(options) {
     return { base64: `data:${mime};base64,${base64}`, mimeType: mime };
 }
 export async function textToImageAndSave(options) {
+    const client = new InferenceClient(options.token ?? process.env.HF_TOKEN);
     const image = await client.textToImage({
         provider: "auto",
         model: options.model ?? "Qwen/Qwen-Image",
@@ -26,7 +27,7 @@ export async function textToImageAndSave(options) {
     return { filePath, base64, mimeType: mime };
 }
 export async function siliconFlowTextToImageUrl(options) {
-    const sfToken = process.env.SF_TOKEN;
+    const sfToken = options.token ?? process.env.SF_TOKEN;
     if (!sfToken) {
         throw new Error("SF_TOKEN is missing");
     }

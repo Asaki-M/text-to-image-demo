@@ -4,19 +4,19 @@ import { textToImageDataUrl, textToImageAndSave, siliconFlowTextToImageUrl } fro
 const app = express();
 app.use(express.json());
 app.post("/api/hf/generate-image", async (req, res) => {
-    const hfToken = process.env.HF_TOKEN;
-    if (!hfToken) {
-        return res.status(500).json({ ok: false, error: "HF_TOKEN is missing" });
-    }
     const body = req.body;
     if (typeof body?.prompt !== "string" || body.prompt.trim().length === 0) {
         return res.status(400).json({ ok: false, error: "prompt is required" });
+    }
+    if (!body.token && !process.env.HF_TOKEN) {
+        return res.status(500).json({ ok: false, error: "HF_TOKEN is missing" });
     }
     try {
         const { base64 } = await textToImageDataUrl({
             prompt: body.prompt,
             model: body.model,
             extraParams: body.extraParams,
+            token: body.token,
         });
         return res.status(200).json({ ok: true, base64 });
     }
@@ -26,13 +26,12 @@ app.post("/api/hf/generate-image", async (req, res) => {
     }
 });
 app.post("/api/hf/generate-image-save", async (req, res) => {
-    const hfToken = process.env.HF_TOKEN;
-    if (!hfToken) {
-        return res.status(500).json({ ok: false, error: "HF_TOKEN is missing" });
-    }
     const body = req.body;
     if (typeof body?.prompt !== "string" || body.prompt.trim().length === 0) {
         return res.status(400).json({ ok: false, error: "prompt is required" });
+    }
+    if (!body.token && !process.env.HF_TOKEN) {
+        return res.status(500).json({ ok: false, error: "HF_TOKEN is missing" });
     }
     try {
         const { base64, filePath } = await textToImageAndSave({
@@ -40,6 +39,7 @@ app.post("/api/hf/generate-image-save", async (req, res) => {
             model: body.model,
             extraParams: body.extraParams,
             outputDir: "outputs/image",
+            token: body.token,
         });
         return res.status(200).json({ ok: true, base64, filePath });
     }
@@ -49,13 +49,12 @@ app.post("/api/hf/generate-image-save", async (req, res) => {
     }
 });
 app.post("/api/sf/generate-image", async (req, res) => {
-    const sfToken = process.env.SF_TOKEN;
-    if (!sfToken) {
-        return res.status(500).json({ ok: false, error: "SF_TOKEN is missing" });
-    }
     const body = req.body;
     if (typeof body?.prompt !== "string" || body.prompt.trim().length === 0) {
         return res.status(400).json({ ok: false, error: "prompt is required" });
+    }
+    if (!body.token && !process.env.SF_TOKEN) {
+        return res.status(500).json({ ok: false, error: "SF_TOKEN is missing" });
     }
     try {
         const { url } = await siliconFlowTextToImageUrl({
@@ -66,6 +65,7 @@ app.post("/api/sf/generate-image", async (req, res) => {
             num_inference_steps: body.num_inference_steps,
             guidance_scale: body.guidance_scale,
             extraParams: body.extraParams,
+            token: body.token,
         });
         return res.status(200).json({ ok: true, url });
     }
